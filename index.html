@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#080b12">
+
+  <title>Obsidian Arcade</title>
+
+  <link rel="manifest" href="./manifest.json">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #070910;
+      color: white;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100dvh;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100dvh;
+      background:
+        radial-gradient(
+          circle at top,
+          #20294d 0%,
+          #090b13 45%,
+          #05060a 100%
+        );
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+
+      padding:
+        calc(14px + env(safe-area-inset-top))
+        14px
+        14px;
+
+      background: rgba(5, 7, 14, .88);
+      backdrop-filter: blur(16px);
+
+      border-bottom:
+        1px solid rgba(255,255,255,.08);
+    }
+
+    .header-inner {
+      width: min(1100px, 100%);
+      margin: auto;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 45px;
+      height: 45px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 14px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #7c3aed,
+          #06b6d4
+        );
+
+      font-size: 25px;
+
+      box-shadow:
+        0 8px 30px rgba(0,0,0,.3);
+    }
+
+    .brand-text strong {
+      display: block;
+      font-size: 18px;
+    }
+
+    .brand-text span {
+      display: block;
+      font-size: 11px;
+      opacity: .55;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .icon-button {
+      width: 42px;
+      height: 42px;
+
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 13px;
+
+      background: rgba(255,255,255,.06);
+      color: white;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 19px;
+    }
+
+    /* =========================
+       HOME
+    ========================= */
+
+    .home {
+      width: min(1100px, 100%);
+      margin: auto;
+
+      padding: 22px 14px 50px;
+    }
+
+    .hero {
+      padding: 25px 20px;
+      margin-bottom: 20px;
+
+      border-radius: 25px;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(124,58,237,.25),
+          rgba(6,182,212,.12)
+        );
+
+      border:
+        1px solid rgba(255,255,255,.09);
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+
+      font-size:
+        clamp(28px, 8vw, 48px);
+
+      line-height: 1;
+    }
+
+    .hero p {
+      margin: 0;
+
+      max-width: 650px;
+
+      color: rgba(255,255,255,.65);
+
+      line-height: 1.5;
+    }
+
+    /* =========================
+       SEARCH
+    ========================= */
+
+    .search-box {
+      margin: 18px 0;
+    }
+
+    .search-box input {
+      width: 100%;
+
+      padding: 15px 17px;
+
+      border-radius: 15px;
+
+      border:
+        1px solid rgba(255,255,255,.1);
+
+      outline: none;
+
+      background:
+        rgba(255,255,255,.06);
+
+      color: white;
+
+      font-size: 16px;
+    }
+
+    .search-box input::placeholder {
+      color: rgba(255,255,255,.4);
+    }
+
+    /* =========================
+       JOGOS
+    ========================= */
+
+    .games-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          auto-fill,
+          minmax(145px, 1fr)
+        );
+
+      gap: 10px;
+    }
+
+    .game-card {
+      min-height: 145px;
+
+      padding: 15px;
+
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+
+      background:
+        rgba(255,255,255,.055);
+
+      color: white;
+
+      text-align: left;
+
+      transition:
+        transform .15s ease,
+        background .15s ease;
+    }
+
+    .game-card:active {
+      transform: scale(.96);
+    }
+
+    .game-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .game-name {
+      font-weight: 900;
+      font-size: 15px;
+    }
+
+    .game-category {
+      margin-top: 4px;
+
+      font-size: 11px;
+
+      color:
+        rgba(255,255,255,.45);
+    }
+
+    .empty {
+      padding: 40px 15px;
+      text-align: center;
+      opacity: .5;
+    }
+
+    /* =========================
+       GAME SCREEN
+    ========================= */
+
+    #game-screen {
+      position: fixed;
+      inset: 0;
+
+      z-index: 100;
+
+      display: none;
+
+      width: 100%;
+      height: 100dvh;
+
+      background: #05070c;
+    }
+
+    #game-screen.active {
+      display: block;
+    }
+
+    .game-header {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+      right: 0;
+
+      height: 58px;
+
+      z-index: 20;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding:
+        env(safe-area-inset-top)
+        10px
+        0;
+
+      background:
+        linear-gradient(
+          rgba(0,0,0,.8),
+          rgba(0,0,0,0)
+        );
+    }
+
+    .game-title {
+      font-weight: 900;
+      font-size: 16px;
+
+      padding-left: 8px;
+    }
+
+    .game-back {
+      width: 43px;
+      height: 43px;
+
+      border: 0;
+      border-radius: 13px;
+
+      background:
+        rgba(0,0,0,.45);
+
+      color: white;
+
+      font-size: 21px;
+    }
+
+    .game-fullscreen {
+      width: 43px;
+      height: 43px;
+
+      border: 0;
+      border-radius: 13px;
+
+      background:
+        rgba(0,0,0,.45);
+
+      color: white;
+
+      font-size: 19px;
+    }
+
+    #game-container {
+      width: 100%;
+      height: 100dvh;
+
+      overflow: auto;
+
+      overscroll-behavior: none;
+    }
+
+    /* =========================
+       PROFILE
+    ========================= */
+
+    .modal {
+      position: fixed;
+      inset: 0;
+
+      z-index: 200;
+
+      display: none;
+
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+
+      background:
+        rgba(0,0,0,.72);
+
+      backdrop-filter: blur(8px);
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(430px, 100%);
+
+      padding: 22px;
+
+      border-radius: 22px;
+
+      background: #111521;
+
+      border:
+        1px solid rgba(255,255,255,.1);
+    }
+
+    .modal-card h2 {
+      margin-top: 0;
+    }
+
+    .modal-card input {
+      width: 100%;
+
+      padding: 14px;
+
+      border-radius: 12px;
+
+      border:
+        1px solid rgba(255,255,255,.1);
+
+      background: rgba(255,255,255,.06);
+
+      color: white;
+
+      outline: none;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+
+      padding: 13px;
+
+      border: 0;
+      border-radius: 12px;
+
+      background: rgba(255,255,255,.08);
+      color: white;
+      font-weight: 800;
+    }
+
+    .modal-actions button.primary {
+      background: #7c3aed;
+    }
+
+    /* =========================
+       DESKTOP
+    ========================= */
+
+    @media(min-width: 700px) {
+
+      .home {
+        padding-top: 35px;
+      }
+
+      .games-grid {
+        grid-template-columns:
+          repeat(
+            auto-fill,
+            minmax(180px, 1fr)
+          );
+      }
+
+      .game-card:hover {
+        background:
+          rgba(255,255,255,.1);
+
+        transform: translateY(-2px);
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- =====================
+       HEADER
+  ====================== -->
+
+  <header class="header">
+
+    <div class="header-inner">
+
+      <div class="brand">
+
+        <div class="brand-icon">
+          🎮
+        </div>
+
+        <div class="brand-text">
+          <strong>OBSIDIAN ARCADE</strong>
+          <span>Central de Jogos</span>
+        </div>
+
+      </div>
+
+      <div class="header-actions">
+
+        <button
+          id="profile-button"
+          class="icon-button"
+          title="Perfil"
+        >
+          👤
+        </button>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- =====================
+       HOME
+  ====================== -->
+
+  <main class="home">
+
+    <section class="hero">
+
+      <h1>
+        🎮 Obsidian Arcade
+      </h1>
+
+      <p>
+        Seus jogos em um só lugar.
+        Escolha um jogo e comece a jogar.
+      </p>
+
+    </section>
+
+
+    <div class="search-box">
+
+      <input
+        id="search"
+        type="search"
+        placeholder="🔎 Procurar jogo..."
+        autocomplete="off"
+      >
+
+    </div>
+
+
+    <div id="games-area"></div>
+
+  </main>
+
+</div>
+
+
+<!-- =====================
+     GAME SCREEN
+====================== -->
+
+<section id="game-screen">
+
+  <div class="game-header">
+
+    <button
+      id="game-back"
+      class="game-back"
+    >
+      ←
+    </button>
+
+    <div
+      id="game-title"
+      class="game-title"
+    >
+      Jogo
+    </div>
+
+    <button
+      id="game-fullscreen"
+      class="game-fullscreen"
+    >
+      ⛶
+    </button>
+
+  </div>
+
+  <div id="game-container"></div>
+
+</section>
+
+
+<!-- =====================
+     PROFILE MODAL
+====================== -->
+
+<div
+  id="profile-modal"
+  class="modal"
+>
+
+  <div class="modal-card">
+
+    <h2>
+      👤 Seu Perfil
+    </h2>
+
+    <p style="opacity:.6">
+      Digite seu nome para salvar
+      seu perfil neste dispositivo.
+    </p>
+
+    <input
+      id="profile-name"
+      type="text"
+      maxlength="30"
+      placeholder="Seu nome"
+    >
+
+    <div class="modal-actions">
+
+      <button id="profile-close">
+        Cancelar
+      </button>
+
+      <button
+        id="profile-save"
+        class="primary"
+      >
+        Salvar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script type="module">
+
+  /*
+   * ==========================================
+   * OBSIDIAN ARCADE — APP PRINCIPAL
+   * ==========================================
+   */
+
+  import {
+    games,
+    arcade
+  } from "./arcade.js";
+
+
+  /*
+   * ==========================================
+   * ELEMENTOS
+   * ==========================================
+   */
+
+  const gamesArea =
+    document.getElementById(
+      "games-area"
+    );
+
+  const searchInput =
+    document.getElementById(
+      "search"
+    );
+
+  const gameScreen =
+    document.getElementById(
+      "game-screen"
+    );
+
+  const gameContainer =
+    document.getElementById(
+      "game-container"
+    );
+
+  const gameTitle =
+    document.getElementById(
+      "game-title"
+    );
+
+  const gameBack =
+    document.getElementById(
+      "game-back"
+    );
+
+  const fullscreenButton =
+    document.getElementById(
+      "game-fullscreen"
+    );
+
+  const profileButton =
+    document.getElementById(
+      "profile-button"
+    );
+
+  const profileModal =
+    document.getElementById(
+      "profile-modal"
+    );
+
+  const profileName =
+    document.getElementById(
+      "profile-name"
+    );
+
+  const profileClose =
+    document.getElementById(
+      "profile-close"
+    );
+
+  const profileSave =
+    document.getElementById(
+      "profile-save"
+    );
+
+
+  /*
+   * ==========================================
+   * JOGO ATUAL
+   * ==========================================
+   */
+
+  let currentGame = null;
+  let destroyCurrentGame = null;
+
+
+  /*
+   * ==========================================
+   * RENDER DOS JOGOS
+   * ==========================================
+   */
+
+  function renderGames(filter = "") {
+
+    gamesArea.innerHTML = "";
+
+    const normalized =
+      filter
+        .trim()
+        .toLowerCase();
+
+    const list =
+      [...games.values()]
+        .filter(game => {
+
+          if (!normalized) {
+            return true;
+          }
+
+          return (
+            game.name
+              .toLowerCase()
+              .includes(normalized) ||
+
+            game.category
+              .toLowerCase()
+              .includes(normalized)
+          );
+
+        });
+
+
+    if (!list.length) {
+
+      gamesArea.innerHTML = `
+        <div class="empty">
+          😕 Nenhum jogo encontrado.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    /*
+     * ==========================================
+     * UMA ÚNICA LISTA DE JOGOS
+     * ==========================================
+     */
+
+    const grid =
+      document.createElement(
+        "div"
+      );
+
+    grid.className =
+      "games-grid";
+
+
+    for (const game of list) {
+
+      const card =
+        document.createElement(
+          "button"
+        );
+
+      card.className =
+        "game-card";
+
+      card.innerHTML = `
+        <div class="game-icon">
+          ${game.icon || "🎮"}
+        </div>
+
+        <div class="game-name">
+          ${game.name}
+        </div>
+
+        <div class="game-category">
+          ${game.category}
+        </div>
+      `;
+
+
+      card.addEventListener(
+        "click",
+        () => openGame(game)
+      );
+
+
+      grid.appendChild(card);
+
+    }
+
+
+    gamesArea.appendChild(grid);
+
+  }
+
+
+  /*
+   * ==========================================
+   * ABRIR JOGO
+   * ==========================================
+   */
+
+  async function openGame(game) {
+
+    if (!game) return;
+
+
+    /*
+     * Entra em fullscreen somente
+     * por ação explícita do usuário.
+     */
+
+    try {
+
+      if (
+        document.documentElement
+          .requestFullscreen
+      ) {
+
+        await document.documentElement
+          .requestFullscreen({
+            navigationUI: "hide"
+          });
+
+      }
+
+    } catch {}
+
+
+    /*
+     * Destrói jogo anterior
+     */
+
+    if (
+      typeof destroyCurrentGame ===
+      "function"
+    ) {
+
+      try {
+        destroyCurrentGame();
+      } catch {}
+
+    }
+
+
+    destroyCurrentGame = null;
+    currentGame = game;
+
+
+    /*
+     * Mostra tela do jogo
+     */
+
+    gameTitle.textContent =
+      `${game.icon || "🎮"} ${game.name}`;
+
+    gameContainer.innerHTML = "";
+
+    gameScreen.classList.add(
+      "active"
+    );
+
+
+    document.body.style.overflow =
+      "hidden";
+
+
+    /*
+     * Inicializa
+     */
+
+    try {
+
+      const result =
+        await game.init({
+          container: gameContainer,
+          arcade,
+          game
+        });
+
+
+      if (
+        typeof result ===
+        "function"
+      ) {
+
+        destroyCurrentGame =
+          result;
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "[ARCADE] Erro ao iniciar jogo:",
+        error
+      );
+
+      gameContainer.innerHTML = `
+        <div style="
+          min-height:100dvh;
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          justify-content:center;
+          padding:30px;
+          text-align:center;
+          color:white;
+          font-family:Arial;
+        ">
+
+          <div style="
+            font-size:60px;
+            margin-bottom:15px;
+          ">
+            ⚠️
+          </div>
+
+          <h2>
+            Erro ao abrir o jogo
+          </h2>
+
+          <p style="
+            opacity:.6;
+            max-width:400px;
+          ">
+            ${error?.message || "Erro desconhecido"}
+          </p>
+
+          <button
+            id="error-back"
+            style="
+              border:0;
+              padding:13px 20px;
+              border-radius:12px;
+              background:#7c3aed;
+              color:white;
+              font-weight:800;
+            "
+          >
+            ← VOLTAR
+          </button>
+
+        </div>
+      `;
+
+
+      document
+        .getElementById(
+          "error-back"
+        )
+        .addEventListener(
+          "click",
+          closeGame
+        );
+
+    }
+
+  }
+
+
+  /*
+   * ==========================================
+   * FECHAR JOGO
+   * ==========================================
+   */
+
+  async function closeGame() {
+
+    if (
+      typeof destroyCurrentGame ===
+      "function"
+    ) {
+
+      try {
+        destroyCurrentGame();
+      } catch {}
+
+    }
+
+
+    destroyCurrentGame = null;
+    currentGame = null;
+
+
+    gameContainer.innerHTML = "";
+
+    gameScreen.classList.remove(
+      "active"
+    );
+
+    document.body.style.overflow =
+      "";
+
+
+    /*
+     * Sai do fullscreen se possível.
+     */
+
+    try {
+
+      if (
+        document.fullscreenElement &&
+        document.exitFullscreen
+      ) {
+
+        await document.exitFullscreen();
+
+      }
+
+    } catch {}
+
+  }
+
+
+  /*
+   * ==========================================
+   * FULLSCREEN
+   * ==========================================
+   */
+
+  fullscreenButton.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        if (
+          !document.fullscreenElement
+        ) {
+
+          await document.documentElement
+            .requestFullscreen({
+              navigationUI: "hide"
+            });
+
+        } else {
+
+          await document
+            .exitFullscreen();
+
+        }
+
+      } catch {}
+
+    }
+  );
+
+
+  /*
+   * ==========================================
+   * VOLTAR
+   * ==========================================
+   */
+
+  gameBack.addEventListener(
+    "click",
+    closeGame
+  );
+
+
+  /*
+   * ==========================================
+   * BUSCA
+   * ==========================================
+   */
+
+  searchInput.addEventListener(
+    "input",
+    () => {
+
+      renderGames(
+        searchInput.value
+      );
+
+    }
+  );
+
+
+  /*
+   * ==========================================
+   * PERFIL
+   * ==========================================
+   */
+
+  profileButton.addEventListener(
+    "click",
+    () => {
+
+      profileName.value =
+        localStorage.getItem(
+          "obsidian_arcade_name"
+        ) || "";
+
+      profileModal.classList.add(
+        "active"
+      );
+
+      setTimeout(
+        () => profileName.focus(),
+        100
+      );
+
+    }
+  );
+
+
+  profileClose.addEventListener(
+    "click",
+    () => {
+
+      profileModal.classList.remove(
+        "active"
+      );
+
+    }
+  );
+
+
+  profileSave.addEventListener(
+    "click",
+    () => {
+
+      const name =
+        profileName.value.trim();
+
+      if (name) {
+
+        localStorage.setItem(
+          "obsidian_arcade_name",
+          name
+        );
+
+      } else {
+
+        localStorage.removeItem(
+          "obsidian_arcade_name"
+        );
+
+      }
+
+      profileModal.classList.remove(
+        "active"
+      );
+
+    }
+  );
+
+
+  /*
+   * ==========================================
+   * ESC
+   * ==========================================
+   */
+
+  window.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key === "Escape" &&
+        gameScreen.classList.contains(
+          "active"
+        )
+      ) {
+
+        closeGame();
+
+      }
+
+    }
+  );
+
+
+  /*
+   * ==========================================
+   * REGISTRA SW
+   * ==========================================
+   */
+
+  if (
+    "serviceWorker" in navigator
+  ) {
+
+    navigator.serviceWorker
+      .register(
+        "./service-worker.js"
+      )
+      .catch(error => {
+
+        console.warn(
+          "[PWA] Service Worker:",
+          error
+        );
+
+      });
+
+  }
+
+
+  /*
+   * ==========================================
+   * CARREGA OS JOGOS
+   * ==========================================
+   *
+   * Cada módulo é carregado separadamente.
+   *
+   * Se algum jogo possuir erro de sintaxe,
+   * caminho incorreto ou outro problema,
+   * os demais continuam carregando.
+   */
+
+  const gameModules = [
+
+    "./games/snake.js",
+
+    "./games/damas.js",
+
+    "./games/paciencia.js",
+
+    "./games/jogodavelha.js",
+
+    "./games/campominado.js",
+
+    "./games/pianotiles.js",
+
+    "./games/2048.js",
+
+    "./games/bilha.js",
+
+    "./games/cacapalavras.js",
+
+    "./games/domino.js",
+
+    "./games/flappy.js",
+
+    "./games/forca.js",
+
+    "./games/galaxy.js",
+
+    "./games/gamao.js",
+
+    "./games/gba.js",
+
+    "./games/invaders.js",
+
+    "./games/ligue4.js",
+
+    "./games/pacman.js",
+
+    "./games/pong.js",
+
+    "./games/breakout.js",
+
+    "./games/quebracabeca.js",
+
+    "./games/quiz.js",
+
+    "./games/simon.js",
+
+    "./games/sudoku.js",
+
+    "./games/tetris.js",
+
+    "./games/toupeira.js",
+
+    "./games/xadrez.js",
+    
+    "./games/numerics.js",
+    
+    "./games/uno.js",
+    
+    "./games/obsidianbros.js",
+    
+    "./games/piano.js",
+   
+
+  ];
+
+
+  /*
+   * ==========================================
+   * IMPORTA CADA JOGO
+   * ==========================================
+   */
+
+  for (
+    const modulePath
+    of gameModules
+  ) {
+
+    try {
+
+      await import(
+        modulePath
+      );
+
+      console.log(
+        `[ARCADE] Módulo carregado: ${modulePath}`
+      );
+
+    } catch (error) {
+
+      console.error(
+        `[ARCADE] Erro ao carregar ${modulePath}:`,
+        error
+      );
+
+    }
+
+  }
+
+
+  /*
+   * ==========================================
+   * AGORA SIM RENDERIZA
+   * ==========================================
+   */
+
+  console.log(
+    "[ARCADE] Jogos registrados:",
+    games.size
+  );
+
+  console.log(
+    "[ARCADE] Lista:",
+    [...games.values()].map(
+      game => game.name
+    )
+  );
+
+  renderGames();
+
+</script>
+
+</body>
+</html>

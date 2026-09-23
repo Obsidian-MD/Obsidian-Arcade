@@ -1,0 +1,13 @@
+{
+  "name": "Obsidian Arcade",
+  "short_name": "Obsidian Arcade",
+  "description": "Galeria de jogos do Obsidian Bot",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08080c",
+  "theme_color": "#08080c",
+  "prefer_related_applications": false,
+  "icons": []
+}
