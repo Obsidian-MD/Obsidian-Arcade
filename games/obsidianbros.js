@@ -541,6 +541,47 @@ const level3Btn =
   );
 
 /* =========================
+   CONTROLE DE DESTRUIÇÃO
+========================= */
+
+let destroyed=false;
+
+let animationFrameId=null;
+
+const timeoutIds=new Set();
+
+/*
+ * Guarda todos os timers criados
+ * pelo jogo para podermos cancelar
+ * tudo ao sair.
+ */
+
+function gameTimeout(callback, delay){
+
+  if(destroyed)
+    return null;
+
+  const id=setTimeout(
+    function(){
+
+      timeoutIds.delete(id);
+
+      if(destroyed)
+        return;
+
+      callback();
+
+    },
+    delay
+  );
+
+  timeoutIds.add(id);
+
+  return id;
+
+}
+
+/* =========================
    CANVAS RESPONSIVO
 ========================= */
 
@@ -552,6 +593,9 @@ const BASE_HEIGHT=620;
 let renderScale=1;
 
 function resize(){
+
+  if(destroyed)
+    return;
 
   const rect =
     root.getBoundingClientRect();
@@ -636,11 +680,13 @@ window.addEventListener(
   resize
 );
 
+let resizeObserver=null;
+
 if(
   window.ResizeObserver
 ){
 
-  const resizeObserver =
+  resizeObserver =
     new ResizeObserver(
       resize
     );
@@ -662,6 +708,9 @@ let musicTimer=null;
 let musicStep=0;
 
 function initAudio(){
+
+  if(destroyed)
+    return;
 
   if(audioCtx)
     return;
@@ -685,7 +734,10 @@ function tone(
   volume=.04
 ){
 
-  if(!audioCtx)
+  if(
+    destroyed ||
+    !audioCtx
+  )
     return;
 
   try{
@@ -731,6 +783,9 @@ function tone(
 
 function jumpSound(){
 
+  if(destroyed)
+    return;
+
   tone(
     420,
     .06,
@@ -738,14 +793,16 @@ function jumpSound(){
     .035
   );
 
-  setTimeout(
+  gameTimeout(
     function(){
+
       tone(
         650,
         .08,
         "square",
         .03
       );
+
     },
     45
   );
@@ -754,6 +811,9 @@ function jumpSound(){
 
 function coinSound(){
 
+  if(destroyed)
+    return;
+
   tone(
     880,
     .07,
@@ -761,14 +821,16 @@ function coinSound(){
     .04
   );
 
-  setTimeout(
+  gameTimeout(
     function(){
+
       tone(
         1320,
         .1,
         "square",
         .035
       );
+
     },
     55
   );
@@ -776,6 +838,9 @@ function coinSound(){
 }
 
 function stompSound(){
+
+  if(destroyed)
+    return;
 
   tone(
     130,
@@ -788,6 +853,9 @@ function stompSound(){
 
 function hurtSound(){
 
+  if(destroyed)
+    return;
+
   tone(
     100,
     .15,
@@ -795,14 +863,16 @@ function hurtSound(){
     .04
   );
 
-  setTimeout(
+  gameTimeout(
     function(){
+
       tone(
         70,
         .2,
         "sawtooth",
         .03
       );
+
     },
     80
   );
@@ -811,6 +881,9 @@ function hurtSound(){
 
 function powerSound(){
 
+  if(destroyed)
+    return;
+
   tone(
     523,
     .08,
@@ -818,26 +891,30 @@ function powerSound(){
     .035
   );
 
-  setTimeout(
+  gameTimeout(
     function(){
+
       tone(
         659,
         .08,
         "square",
         .035
       );
+
     },
     80
   );
 
-  setTimeout(
+  gameTimeout(
     function(){
+
       tone(
         784,
         .12,
         "square",
         .04
       );
+
     },
     160
   );
@@ -845,6 +922,9 @@ function powerSound(){
 }
 
 function winSound(){
+
+  if(destroyed)
+    return;
 
   const notes=[
     523,
@@ -857,14 +937,16 @@ function winSound(){
   notes.forEach(
     function(n,i){
 
-      setTimeout(
+      gameTimeout(
         function(){
+
           tone(
             n,
             .16,
             "square",
             .035
           );
+
         },
         i*100
       );
@@ -888,10 +970,13 @@ const melody=[
 function musicTick(){
 
   if(
+    destroyed ||
     !audioCtx ||
     !running
   ){
+
     return;
+
   }
 
   const note =
@@ -916,6 +1001,9 @@ function musicTick(){
 }
 
 function startMusic(){
+
+  if(destroyed)
+    return;
 
   stopMusic();
 
@@ -957,109 +1045,121 @@ const keys={
 let jumpPressed=false;
 let firePressed=false;
 
-window.addEventListener(
-  "keydown",
-  function(e){
+function onKeyDown(e){
 
-    initAudio();
+  if(destroyed)
+    return;
 
-    if(
-      e.code==="ArrowLeft" ||
-      e.code==="KeyA"
-    ){
+  initAudio();
 
-      keys.left=true;
+  if(
+    e.code==="ArrowLeft" ||
+    e.code==="KeyA"
+  ){
 
-      e.preventDefault();
+    keys.left=true;
 
-    }
-
-    if(
-      e.code==="ArrowRight" ||
-      e.code==="KeyD"
-    ){
-
-      keys.right=true;
-
-      e.preventDefault();
-
-    }
-
-    if(
-      e.code==="ArrowUp" ||
-      e.code==="Space" ||
-      e.code==="KeyW"
-    ){
-
-      if(!keys.jump)
-        jumpPressed=true;
-
-      keys.jump=true;
-
-      e.preventDefault();
-
-    }
-
-    if(
-      e.code==="KeyF" ||
-      e.code==="KeyX"
-    ){
-
-      if(!keys.fire)
-        firePressed=true;
-
-      keys.fire=true;
-
-      e.preventDefault();
-
-    }
+    e.preventDefault();
 
   }
+
+  if(
+    e.code==="ArrowRight" ||
+    e.code==="KeyD"
+  ){
+
+    keys.right=true;
+
+    e.preventDefault();
+
+  }
+
+  if(
+    e.code==="ArrowUp" ||
+    e.code==="Space" ||
+    e.code==="KeyW"
+  ){
+
+    if(!keys.jump)
+      jumpPressed=true;
+
+    keys.jump=true;
+
+    e.preventDefault();
+
+  }
+
+  if(
+    e.code==="KeyF" ||
+    e.code==="KeyX"
+  ){
+
+    if(!keys.fire)
+      firePressed=true;
+
+    keys.fire=true;
+
+    e.preventDefault();
+
+  }
+
+}
+
+function onKeyUp(e){
+
+  if(destroyed)
+    return;
+
+  if(
+    e.code==="ArrowLeft" ||
+    e.code==="KeyA"
+  ){
+
+    keys.left=false;
+
+  }
+
+  if(
+    e.code==="ArrowRight" ||
+    e.code==="KeyD"
+  ){
+
+    keys.right=false;
+
+  }
+
+  if(
+    e.code==="ArrowUp" ||
+    e.code==="Space" ||
+    e.code==="KeyW"
+  ){
+
+    keys.jump=false;
+
+  }
+
+  if(
+    e.code==="KeyF" ||
+    e.code==="KeyX"
+  ){
+
+    keys.fire=false;
+
+  }
+
+}
+
+window.addEventListener(
+  "keydown",
+  onKeyDown
 );
 
 window.addEventListener(
   "keyup",
-  function(e){
-
-    if(
-      e.code==="ArrowLeft" ||
-      e.code==="KeyA"
-    ){
-
-      keys.left=false;
-
-    }
-
-    if(
-      e.code==="ArrowRight" ||
-      e.code==="KeyD"
-    ){
-
-      keys.right=false;
-
-    }
-
-    if(
-      e.code==="ArrowUp" ||
-      e.code==="Space" ||
-      e.code==="KeyW"
-    ){
-
-      keys.jump=false;
-
-    }
-
-    if(
-      e.code==="KeyF" ||
-      e.code==="KeyX"
-    ){
-
-      keys.fire=false;
-
-    }
-
-  }
+  onKeyUp
 );
+
+const buttonHandlers=[];
 
 function bindButton(
   id,
@@ -1072,6 +1172,9 @@ function bindButton(
     );
 
   function down(e){
+
+    if(destroyed)
+      return;
 
     e.preventDefault();
 
@@ -1111,6 +1214,9 @@ function bindButton(
 
   function up(e){
 
+    if(destroyed)
+      return;
+
     e.preventDefault();
 
     keys[key]=false;
@@ -1136,6 +1242,12 @@ function bindButton(
     "pointerleave",
     up
   );
+
+  buttonHandlers.push({
+    el,
+    down,
+    up
+  });
 
 }
 
@@ -1875,6 +1987,9 @@ function resetPlayer(){
 
 function startGame(){
 
+  if(destroyed)
+    return;
+
   initAudio();
 
   if(
@@ -1908,9 +2023,18 @@ function startGame(){
 
   accumulator=0;
 
-  requestAnimationFrame(
-    loop
-  );
+  if(animationFrameId!==null){
+
+    cancelAnimationFrame(
+      animationFrameId
+    );
+
+  }
+
+  animationFrameId =
+    requestAnimationFrame(
+      loop
+    );
 
 }
 
@@ -1978,17 +2102,7 @@ function updatePlayer(){
 
   }
 
-  /* =========================
-     PULO NORMAL + PULO DUPLO
-  ========================= */
-
   if(jumpPressed){
-
-    /*
-      Primeiro impulso:
-      permitido no chão ou durante
-      a pequena janela de coyote.
-    */
 
     if(
       player.grounded ||
@@ -2014,13 +2128,6 @@ function updatePlayer(){
         "#ffffff",
         5
       );
-
-    /*
-      Segundo impulso:
-      se o personagem ainda estiver no ar,
-      outro toque aplica novamente a força
-      do pulo a partir da altura atual.
-    */
 
     }else if(
       player.jumpCount===1
@@ -2153,11 +2260,6 @@ function updatePlayer(){
         player.grounded=true;
 
         player.coyote=.12;
-
-        /*
-          Ao tocar novamente no chão,
-          o contador de pulo é liberado.
-        */
 
         player.jumpCount=0;
 
@@ -2906,7 +3008,10 @@ function hurtPlayer(){
 
 function loseLife(){
 
-  if(player.dead)
+  if(
+    player.dead ||
+    destroyed
+  )
     return;
 
   lives--;
@@ -2925,8 +3030,11 @@ function loseLife(){
 
   player.dead=true;
 
-  setTimeout(
+  gameTimeout(
     function(){
+
+      if(destroyed)
+        return;
 
       player.dead=false;
 
@@ -2966,7 +3074,10 @@ function checkFinish(){
 
 function winLevel(){
 
-  if(!running)
+  if(
+    !running ||
+    destroyed
+  )
     return;
 
   running=false;
@@ -3165,7 +3276,10 @@ function updateParticles(dt){
 
 function update(dt){
 
-  if(!running)
+  if(
+    !running ||
+    destroyed
+  )
     return;
 
   updateTimer(dt);
@@ -3781,8 +3895,6 @@ function drawEnemies(){
         0,
         Math.PI*2
       );
-
-      ctx.fill();
 
       ctx.fillStyle="#fff";
 
@@ -4487,50 +4599,67 @@ function updateLevelButtons(){
 
 }
 
+function selectLevel1(){
+
+  if(destroyed)
+    return;
+
+  currentLevel=1;
+
+  updateLevelButtons();
+
+}
+
+function selectLevel2(){
+
+  if(destroyed)
+    return;
+
+  currentLevel=2;
+
+  updateLevelButtons();
+
+}
+
+function selectLevel3(){
+
+  if(destroyed)
+    return;
+
+  currentLevel=3;
+
+  updateLevelButtons();
+
+}
+
 level1Btn.addEventListener(
   "click",
-  function(){
-
-    currentLevel=1;
-
-    updateLevelButtons();
-
-  }
+  selectLevel1
 );
 
 level2Btn.addEventListener(
   "click",
-  function(){
-
-    currentLevel=2;
-
-    updateLevelButtons();
-
-  }
+  selectLevel2
 );
 
 level3Btn.addEventListener(
   "click",
-  function(){
-
-    currentLevel=3;
-
-    updateLevelButtons();
-
-  }
+  selectLevel3
 );
 
 /* =========================
    START
 ========================= */
 
+function onStartClick(){
+
+  startGame();
+
+}
+
 startBtn.addEventListener(
   "click",
-  function(){
-
-    startGame();
-
-  }
+  onStartClick
 );
 
 /* =========================
@@ -4538,6 +4667,9 @@ startBtn.addEventListener(
 ========================= */
 
 function draw(){
+
+  if(destroyed)
+    return;
 
   drawBackground();
 
@@ -4551,9 +4683,19 @@ function draw(){
 
 function loop(timestamp){
 
+  if(destroyed){
+
+    animationFrameId=null;
+
+    return;
+
+  }
+
   if(!running){
 
     draw();
+
+    animationFrameId=null;
 
     return;
 
@@ -4583,9 +4725,10 @@ function loop(timestamp){
 
   draw();
 
-  requestAnimationFrame(
-    loop
-  );
+  animationFrameId =
+    requestAnimationFrame(
+      loop
+    );
 
 }
 
@@ -4602,6 +4745,246 @@ updateHUD();
 updateLevelButtons();
 
 draw();
+
+/* =========================
+   DESTROY
+========================= */
+
+/*
+ * Esta função é entregue ao Arcade.
+ *
+ * Quando o usuário aperta ← VOLTAR,
+ * o index.html chama esta função antes
+ * de remover o jogo do container.
+ */
+
+function destroyGame(){
+
+  if(destroyed)
+    return;
+
+  destroyed=true;
+
+  /*
+   * Para imediatamente o jogo.
+   */
+
+  running=false;
+
+  /*
+   * Para a música.
+   */
+
+  stopMusic();
+
+  /*
+   * Cancela o requestAnimationFrame.
+   */
+
+  if(animationFrameId!==null){
+
+    cancelAnimationFrame(
+      animationFrameId
+    );
+
+    animationFrameId=null;
+
+  }
+
+  /*
+   * Cancela TODOS os setTimeout
+   * usados pelos efeitos sonoros
+   * e pelo respawn do jogador.
+   */
+
+  for(
+    const id of timeoutIds
+  ){
+
+    try{
+
+      clearTimeout(id);
+
+    }catch{}
+
+  }
+
+  timeoutIds.clear();
+
+  /*
+   * Remove resize.
+   */
+
+  window.removeEventListener(
+    "resize",
+    resize
+  );
+
+  /*
+   * Remove teclado.
+   */
+
+  window.removeEventListener(
+    "keydown",
+    onKeyDown
+  );
+
+  window.removeEventListener(
+    "keyup",
+    onKeyUp
+  );
+
+  /*
+   * Remove controles touch.
+   */
+
+  for(
+    const item of buttonHandlers
+  ){
+
+    try{
+
+      item.el.removeEventListener(
+        "pointerdown",
+        item.down
+      );
+
+      item.el.removeEventListener(
+        "pointerup",
+        item.up
+      );
+
+      item.el.removeEventListener(
+        "pointercancel",
+        item.up
+      );
+
+      item.el.removeEventListener(
+        "pointerleave",
+        item.up
+      );
+
+    }catch{}
+
+  }
+
+  buttonHandlers.length=0;
+
+  /*
+   * Remove botões de fase.
+   */
+
+  level1Btn.removeEventListener(
+    "click",
+    selectLevel1
+  );
+
+  level2Btn.removeEventListener(
+    "click",
+    selectLevel2
+  );
+
+  level3Btn.removeEventListener(
+    "click",
+    selectLevel3
+  );
+
+  startBtn.removeEventListener(
+    "click",
+    onStartClick
+  );
+
+  /*
+   * Desconecta o ResizeObserver.
+   */
+
+  if(resizeObserver){
+
+    try{
+
+      resizeObserver.disconnect();
+
+    }catch{}
+
+    resizeObserver=null;
+
+  }
+
+  /*
+   * Fecha completamente o AudioContext.
+   *
+   * Isso é o que garante que a música
+   * não continue tocando depois que
+   * o jogo foi fechado.
+   */
+
+  if(audioCtx){
+
+    try{
+
+      if(
+        audioCtx.state!=="closed"
+      ){
+
+        audioCtx.close();
+
+      }
+
+    }catch{}
+
+    audioCtx=null;
+
+  }
+
+  /*
+   * Limpa referências do jogo.
+   */
+
+  platforms=[];
+  enemies=[];
+  coinsList=[];
+  powerups=[];
+  blocks=[];
+  projectiles=[];
+  particles=[];
+  decorations=[];
+
+  /*
+   * Remove a função de destroy do
+   * próprio container.
+   */
+
+  try{
+
+    if(
+      containerRef &&
+      containerRef.__obsidianBrosDestroy===
+      destroyGame
+    ){
+
+      delete containerRef.__obsidianBrosDestroy;
+
+    }
+
+  }catch{}
+
+}
+
+/*
+ * O script precisa expor a função para
+ * o init() do módulo conseguir devolvê-la
+ * ao Arcade.
+ */
+
+const containerRef =
+  root?.parentElement;
+
+if(containerRef){
+
+  containerRef.__obsidianBrosDestroy =
+    destroyGame;
+
+}
 
 })();
 </script>
@@ -4668,6 +5051,16 @@ registerGame({
 
     executeGameScripts(
       container
+    );
+
+    /*
+     * Entrega o destroy() para o
+     * openGame()/closeGame() do Arcade.
+     */
+
+    return (
+      container.__obsidianBrosDestroy ||
+      null
     );
 
   }
