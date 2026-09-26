@@ -383,6 +383,8 @@
 
       position: relative;
       z-index: 100;
+
+      touch-action: manipulation;
     }
 
     #game-container {
@@ -400,42 +402,43 @@
     ========================= */
 
     /*
-     * IMPORTANTE:
+     * O HUD do Snake ocupa a parte superior
+     * da tela.
      *
-     * A HUD original do Snake continua
-     * exatamente na parte superior.
-     *
-     * Portanto:
+     * Os indicadores continuam à esquerda:
      *
      * TAMANHO
      * COMIDA
      * INIMIGOS
      *
-     * não são deslocados.
-     *
-     * Apenas o botão de PAUSE é colocado
-     * abaixo do fullscreen.
+     * O botão de PAUSE fica abaixo do
+     * fullscreen, no lado direito.
      */
 
     #game-screen.snake-active .snakeHud {
+      position: absolute;
+
       top: 10px;
       left: 10px;
       right: 10px;
 
       width: auto;
+      height: auto;
 
       display: flex;
+
       justify-content: space-between;
       align-items: flex-start;
 
       gap: 8px;
 
-      z-index: 20;
+      z-index: 40;
+
+      pointer-events: none;
     }
 
     /*
-     * Mantém os indicadores do Snake
-     * dentro da área disponível.
+     * Indicadores do Snake.
      */
 
     #game-screen.snake-active .snakeStats {
@@ -443,18 +446,33 @@
 
       top: 0;
       right: auto;
+      left: auto;
 
       max-width: calc(100% - 65px);
 
       display: flex;
       flex-wrap: wrap;
+
       gap: 6px;
 
       pointer-events: none;
+
+      z-index: 40;
     }
 
     /*
-     * Somente a área dos botões é reposicionada.
+     * Área exclusiva dos controles.
+     *
+     * O fullscreen fica no header:
+     *
+     *             ⛶
+     *
+     * E o pause fica logo abaixo:
+     *
+     *             Ⅱ
+     *
+     * Existe espaço físico entre os dois
+     * para impedir toque acidental.
      */
 
     #game-screen.snake-active .snakeActions {
@@ -463,31 +481,47 @@
       top: 54px;
       right: 0;
 
+      width: 43px;
+
       display: flex;
 
       flex-direction: column;
-      align-items: flex-end;
+
+      align-items: center;
+      justify-content: flex-start;
 
       gap: 6px;
 
-      z-index: 30;
+      z-index: 150;
 
       pointer-events: auto;
     }
 
     /*
      * Botão de pausa.
+     *
+     * A área de toque é exatamente a área
+     * visual do botão.
      */
 
     #game-screen.snake-active .snakeBtn {
       position: relative;
 
-      z-index: 31;
+      flex: 0 0 43px;
 
       width: 43px;
       height: 43px;
 
+      min-width: 43px;
+      min-height: 43px;
+
+      padding: 0;
+
       touch-action: manipulation;
+
+      pointer-events: auto;
+
+      z-index: 151;
     }
 
     /* =========================

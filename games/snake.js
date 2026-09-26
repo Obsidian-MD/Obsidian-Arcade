@@ -43,7 +43,7 @@ export const SNAKE_HTML = String.raw`
     top:10px;
     left:10px;
     right:10px;
-    z-index:20;
+    z-index:40;
     display:flex;
     justify-content:space-between;
     align-items:flex-start;
@@ -56,6 +56,8 @@ export const SNAKE_HTML = String.raw`
     flex-wrap:wrap;
     gap:6px;
     max-width:calc(100% - 65px);
+    pointer-events:none;
+    z-index:40;
   }
 
   .snakeStat{
@@ -68,6 +70,7 @@ export const SNAKE_HTML = String.raw`
     font-weight:700;
     backdrop-filter:blur(8px);
     box-shadow:0 4px 18px rgba(0,0,0,.3);
+    pointer-events:none;
   }
 
   .snakeStat b{
@@ -75,24 +78,56 @@ export const SNAKE_HTML = String.raw`
     margin-left:3px;
   }
 
+  /*
+   * BOTÃO DE PAUSA
+   * Fica abaixo do botão de tela cheia
+   * que pertence ao index.html.
+   */
   .snakeActions{
+    position:absolute;
+    top:54px;
+    right:0;
+    width:43px;
+    height:auto;
+
     display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
     gap:6px;
+
+    z-index:150;
     pointer-events:auto;
   }
 
   .snakeBtn{
+    position:relative;
+
+    flex:0 0 43px;
+
     width:43px;
     height:43px;
+    min-width:43px;
+    min-height:43px;
+
+    padding:0;
+
     border:1px solid rgba(255,255,255,.16);
     border-radius:12px;
     background:rgba(5,8,17,.84);
     color:#fff;
     font-size:18px;
+
     display:flex;
     align-items:center;
     justify-content:center;
+
     box-shadow:0 5px 18px rgba(0,0,0,.35);
+
+    touch-action:manipulation;
+    pointer-events:auto;
+
+    z-index:151;
   }
 
   .snakeBtn:active{
@@ -1814,14 +1849,6 @@ registerGame({
       screenY /=
         length;
 
-      /*
-       * A câmera está sempre exatamente
-       * acima do campo.
-       *
-       * Isso deixa o gesto independente
-       * da direção atual da cobra.
-       */
-
       const cameraRight =
         new THREE.Vector3();
 
@@ -1842,10 +1869,6 @@ registerGame({
 
       cameraRight.normalize();
 
-      /*
-       * Vetor correspondente
-       * ao "cima" da tela no chão.
-       */
       const screenUpGround =
         new THREE.Vector3()
           .crossVectors(
@@ -2637,11 +2660,6 @@ registerGame({
       ) {
         return;
       }
-
-      /*
-       * Câmera SEMPRE de cima.
-       * Não existe mais modo alternativo.
-       */
 
       camera.position.x =
         player.position.x;
@@ -3666,16 +3684,6 @@ registerGame({
       updateEnemyRespawns(
         delta
       );
-
-      /*
-       * IMPORTANTE:
-       * Não existe mais colisão
-       * da cobra com o próprio corpo.
-       *
-       * Portanto o jogador pode
-       * atravessar o próprio corpo
-       * normalmente.
-       */
 
       if (
         checkEnemyCollisions()
