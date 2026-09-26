@@ -362,6 +362,9 @@
       color: white;
 
       font-size: 21px;
+
+      position: relative;
+      z-index: 100;
     }
 
     .game-fullscreen {
@@ -377,6 +380,9 @@
       color: white;
 
       font-size: 19px;
+
+      position: relative;
+      z-index: 100;
     }
 
     #game-container {
@@ -386,6 +392,102 @@
       overflow: auto;
 
       overscroll-behavior: none;
+    }
+
+    /* =========================
+       SNAKE 3D
+       CONTROLES
+    ========================= */
+
+    /*
+     * IMPORTANTE:
+     *
+     * A HUD original do Snake continua
+     * exatamente na parte superior.
+     *
+     * Portanto:
+     *
+     * TAMANHO
+     * COMIDA
+     * INIMIGOS
+     *
+     * não são deslocados.
+     *
+     * Apenas o botão de PAUSE é colocado
+     * abaixo do fullscreen.
+     */
+
+    #game-screen.snake-active .snakeHud {
+      top: 10px;
+      left: 10px;
+      right: 10px;
+
+      width: auto;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+
+      gap: 8px;
+
+      z-index: 20;
+    }
+
+    /*
+     * Mantém os indicadores do Snake
+     * dentro da área disponível.
+     */
+
+    #game-screen.snake-active .snakeStats {
+      position: relative;
+
+      top: 0;
+      right: auto;
+
+      max-width: calc(100% - 65px);
+
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+
+      pointer-events: none;
+    }
+
+    /*
+     * Somente a área dos botões é reposicionada.
+     */
+
+    #game-screen.snake-active .snakeActions {
+      position: absolute;
+
+      top: 54px;
+      right: 0;
+
+      display: flex;
+
+      flex-direction: column;
+      align-items: flex-end;
+
+      gap: 6px;
+
+      z-index: 30;
+
+      pointer-events: auto;
+    }
+
+    /*
+     * Botão de pausa.
+     */
+
+    #game-screen.snake-active .snakeBtn {
+      position: relative;
+
+      z-index: 31;
+
+      width: 43px;
+      height: 43px;
+
+      touch-action: manipulation;
     }
 
     /* =========================
@@ -927,6 +1029,20 @@
     );
 
 
+    /*
+     * Ativa a organização especial
+     * dos controles somente no Snake.
+     *
+     * Os demais jogos não recebem
+     * nenhuma alteração.
+     */
+
+    gameScreen.classList.toggle(
+      "snake-active",
+      game.id === "snake"
+    );
+
+
     document.body.style.overflow =
       "hidden";
 
@@ -1054,6 +1170,15 @@
     gameScreen.classList.remove(
       "active"
     );
+
+    /*
+     * Remove a classe especial do Snake.
+     */
+
+    gameScreen.classList.remove(
+      "snake-active"
+    );
+
 
     document.body.style.overflow =
       "";
@@ -1278,45 +1403,46 @@
 
   const gameModules = [
 
-  "./games/2048.js",
-  "./games/bilhar.js",
-  "./games/cacapalavras.js",
-  "./games/campominado.js",
-  "./games/damas.js",
-  "./games/domino.js",
-  "./games/filme.js",
-  "./games/flappy.js",
-  "./games/forcab.js",
-  "./games/galaxy.js",
-  "./games/gamao.js",
-  "./games/gba.js",
-  "./games/invaders.js",
-  "./games/ligue4.js",
-  "./games/memoria.js",
-  "./games/numerics.js",
-  "./games/obsidian-city.js",
-  "./games/obsidianbros.js",
-  "./games/paciencia.js",
-  "./games/pacman.js",
-  "./games/piano.js",
-  "./games/pong.js",
-  "./games/quebrablock.js",
-  "./games/quebracabeca.js",
-  "./games/quiz.js",
-  "./games/racer.js",
-  "./games/rpgb.js",
-  "./games/simon.js",
-  "./games/snake.js",
-  "./games/sudoku.js",
-  "./games/tetris.js",
-  "./games/toupeira.js",
-  "./games/uno.js",
-  "./games/velhab.js",
-  "./games/agario.js",
-  "./games/agario2.js",
-  "./games/snake2.js"
+    "./games/2048.js",
+    "./games/bilhar.js",
+    "./games/cacapalavras.js",
+    "./games/campominado.js",
+    "./games/damas.js",
+    "./games/domino.js",
+    "./games/filme.js",
+    "./games/flappy.js",
+    "./games/forcab.js",
+    "./games/galaxy.js",
+    "./games/gamao.js",
+    "./games/gba.js",
+    "./games/invaders.js",
+    "./games/ligue4.js",
+    "./games/memoria.js",
+    "./games/numerics.js",
+    "./games/obsidian-city.js",
+    "./games/obsidianbros.js",
+    "./games/paciencia.js",
+    "./games/pacman.js",
+    "./games/piano.js",
+    "./games/pong.js",
+    "./games/quebrablock.js",
+    "./games/quebracabeca.js",
+    "./games/quiz.js",
+    "./games/racer.js",
+    "./games/rpgb.js",
+    "./games/simon.js",
+    "./games/snake.js",
+    "./games/sudoku.js",
+    "./games/tetris.js",
+    "./games/toupeira.js",
+    "./games/uno.js",
+    "./games/velhab.js",
+    "./games/agario.js",
+    "./games/agario2.js",
+    "./games/snake2.js"
 
-];
+  ];
+
 
   /*
    * ==========================================
